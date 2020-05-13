@@ -44,7 +44,7 @@ public class VocabularyAccessRestImpl implements VocabularyAccess {
         if(!(result.getHeaders().containsKey("Location")))
             return id;
 
-         parse = Objects.requireNonNull(result.getHeaders().getLocation()).getPath();
+        parse = Objects.requireNonNull(result.getHeaders().getLocation()).getPath();
 
         if(!parse.isEmpty()){
             buffer = parse.substring(parse.lastIndexOf('/'));
@@ -74,9 +74,10 @@ public class VocabularyAccessRestImpl implements VocabularyAccess {
     private URI vocabularyWithId(long id) throws URISyntaxException {
         return new URI(String.format("%s%d", uri.toString(), id));
     }
-
+    //TODO
     @Override
-    public Collection<Vocabulary> getAllVocabularies() {
+    public List<Vocabulary> getAllVocabularies() {
+        //TODO END
         ResponseEntity<List<Vocabulary>> response = restTemplate.exchange(
                 uri,
                 HttpMethod.GET,
