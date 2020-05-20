@@ -11,7 +11,7 @@ public interface VocabularyAccess {
     Integer addVocabulary(Vocabulary vocabulary);
 
     Vocabulary getVocabulary(long id);
-    //TODO
+
     List<Vocabulary> getAllVocabularies();
-    //TODO END
+
 }

@@ -77,7 +77,6 @@ public class VocabularyAccessRestImpl implements VocabularyAccess {
     //TODO
     @Override
     public List<Vocabulary> getAllVocabularies() {
-        //TODO END
         ResponseEntity<List<Vocabulary>> response = restTemplate.exchange(
                 uri,
                 HttpMethod.GET,

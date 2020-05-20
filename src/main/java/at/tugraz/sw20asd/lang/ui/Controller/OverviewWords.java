@@ -43,11 +43,8 @@ public class OverviewWords extends VBox {
     private TableView<EntryModel> table;
 
     private VocabularyAccess vocab;
-    //TODO
     private Task<Vocabulary> getVocabsTask;
     private Vocabulary v;
-    //TODO END
-
 
     public OverviewWords(VocabularyAccess vocab, Integer index) {
         this.vocab = vocab;
@@ -64,9 +61,7 @@ public class OverviewWords extends VBox {
     }
 
     public void initialize() {
-        //TODO
         getVocabsGroup();
-        //TODO END
 
         add_btn.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -95,44 +90,44 @@ public class OverviewWords extends VBox {
 
     }
 
-    private void updateUserInformation(String code){
+    private void updateUserInformation(String code) {
 
         user_info.setVisible(true);
         user_info.setTextFill(Color.RED);
-        switch (code){
+        switch (code) {
             case "No words added":
                 user_info.setText("You haven`t added any word on that vocab!");
                 break;
             default:
                 user_info.setText("Sorry, something went wrong");
-        } }
-    //TODO
-    private void getVocabsGroup(){
+        }
+    }
+
+    private void getVocabsGroup() {
         //get Vocabulary group
         getVocabsTask = new Task<>() {
             @Override
             protected Vocabulary call() throws Exception {
-                v =  vocab.getVocabulary(index);
+                v = vocab.getVocabulary(index);
                 return v;
             }
         };
 
         getVocabsTask.stateProperty().addListener(((observable, oldValue, newValue) -> {
-            if(newValue == Worker.State.CANCELLED){
-                Platform.runLater(()-> {
-                   updateUserInformation("");
+            if (newValue == Worker.State.CANCELLED) {
+                Platform.runLater(() -> {
+                    updateUserInformation("");
                 });
                 getVocabsTask.cancel();
             }
 
-            if(newValue == Worker.State.SUCCEEDED){
-                if(v == null) {
-                    Platform.runLater(()-> {
+            if (newValue == Worker.State.SUCCEEDED) {
+                if (v == null) {
+                    Platform.runLater(() -> {
                         updateUserInformation("No words added");
                     });
-                }
-                else{
-                    Platform.runLater(()-> {
+                } else {
+                    Platform.runLater(() -> {
                         phraseColumn.setText(v.getSourceLanguage().toString());
                         translationColumn.setText(v.getTargetLanguage().toString());
 
@@ -146,15 +141,14 @@ public class OverviewWords extends VBox {
                     });
                 }
             }
-        } ));
+        }));
 
         Thread th = new Thread(getVocabsTask);
         th.setDaemon(true);
         th.start();
     }
-    //TODO END
 
-    private void clearOverviewWords(){
+    private void clearOverviewWords() {
         phraseColumn.setText("");
         translationColumn.setText("");
     }

@@ -5,7 +5,6 @@ import at.tugraz.sw20asd.lang.ui.VocabularyAccess;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
@@ -16,24 +15,17 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-
-
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.List;
-
 
 public class OverviewVocabs extends VBox {
 
     private VocabularyAccess vocab;
 
-
-    //TODO
     private Task<List<Vocabulary>> getAllVocabsTask;
     private List<Vocabulary> Vocabularies;
 
@@ -41,8 +33,6 @@ public class OverviewVocabs extends VBox {
     private Button return_btn;
     @FXML
     private Label user_info;
-
-    //TODO
     @FXML
     private ScrollPane pane;
     @FXML
@@ -51,6 +41,8 @@ public class OverviewVocabs extends VBox {
 
     public OverviewVocabs(VocabularyAccess vocab) {
         this.vocab = vocab;
+        this.Vocabularies = FXCollections.observableArrayList();
+
         FXMLLoader loader = new FXMLLoader();
         loader.setControllerFactory(c -> this);
         loader.setRoot(this);
@@ -63,7 +55,6 @@ public class OverviewVocabs extends VBox {
     }
 
     public void initialize() {
-        //TODO
         getVocabs();
 
         scrollPaneContent.minWidthProperty().bind(Bindings.createDoubleBinding(() ->
@@ -74,7 +65,6 @@ public class OverviewVocabs extends VBox {
         scrollPaneContent.setVgap(10);
         pane.setContent(scrollPaneContent);
 
-        //TODO END
         return_btn.setOnAction(new EventHandler<ActionEvent>() {
 
             public void handle(ActionEvent event) {
@@ -87,9 +77,7 @@ public class OverviewVocabs extends VBox {
     }
 
 
-
-
-    private Button createButton(int index){
+    private Button createButton(int index) {
         Button button = new Button(Vocabularies.get(index).getName());
         button.setPrefHeight(40.0);
         button.setPrefWidth(350.0);
@@ -103,11 +91,11 @@ public class OverviewVocabs extends VBox {
         return button;
     }
 
-    private void setVocabs(){
+    private void setVocabs() {
         int size = Vocabularies.size();
         int height = size / 2;
         int width = 2;
-        int r,c;
+        int r, c;
 
         int current_size = 0;
         for (r = 0; r < height; r++) {
@@ -115,18 +103,17 @@ public class OverviewVocabs extends VBox {
                 Button button = createButton(current_size);
                 int finalC = c;
                 int finalR = r;
-                Platform.runLater(()-> {
+                Platform.runLater(() -> {
                     scrollPaneContent.add(button, finalC, finalR);
                 });
                 current_size++;
             }
         }
-        if((size % 2) != 0)
-        {
+        if ((size % 2) != 0) {
             Button button = createButton(current_size++);
             int finalC = 0;
             int finalR = r + 1;
-            Platform.runLater(()-> {
+            Platform.runLater(() -> {
                 scrollPaneContent.add(button, finalC, finalR);
             });
         }
@@ -134,10 +121,10 @@ public class OverviewVocabs extends VBox {
     }
 
 
-    private void updateUserInformation(String code){
+    private void updateUserInformation(String code) {
         user_info.setVisible(true);
         user_info.setTextFill(Color.RED);
-        switch (code){
+        switch (code) {
             case "No vocabs added":
                 user_info.setText("You haven`t added any vocab yet!");
                 break;
@@ -148,7 +135,8 @@ public class OverviewVocabs extends VBox {
                 user_info.setText("Sorry, something went wrong");
         }
     }
-    private void getVocabs(){
+
+    private void getVocabs() {
         //get Vocabularies
         getAllVocabsTask = new Task<>() {
             @Override
@@ -159,38 +147,37 @@ public class OverviewVocabs extends VBox {
         };
 
         getAllVocabsTask.stateProperty().addListener(((observable, oldValue, newValue) -> {
-            if(newValue == Worker.State.CANCELLED){
-                Platform.runLater(()-> {
+            if (newValue == Worker.State.CANCELLED || newValue == Worker.State.FAILED || getAllVocabsTask.getValue() == null) {
+                Platform.runLater(() -> {
                     updateUserInformation("");
                 });
                 getAllVocabsTask.cancel();
             }
 
-            if(newValue == Worker.State.SUCCEEDED){
-                if(Vocabularies == null || Vocabularies.size() == 0) {
-                    Platform.runLater(()-> {
+            if (newValue == Worker.State.SUCCEEDED) {
+                if (Vocabularies == null || Vocabularies.size() == 0) {
+                    Platform.runLater(() -> {
                         updateUserInformation("No vocabs added");
                     });
-                }
-                   else{
-                        if(Vocabularies.size() == 1){
-                            Button button = createButton(0);
-                            Platform.runLater(()-> {
-                                scrollPaneContent.add(button, 0, 0);
-                            });
-                        }
-                        else{
-                            setVocabs();
-                        }
+                } else {
+                    if (Vocabularies.size() == 1) {
+                        Button button = createButton(0);
+                        Platform.runLater(() -> {
+                            scrollPaneContent.add(button, 0, 0);
+                        });
+                    } else {
+                        setVocabs();
                     }
                 }
-            } ));
+            }
+        }));
 
-            Thread th = new Thread(getAllVocabsTask);
-            th.setDaemon(true);
-            th.start();
+        Thread th = new Thread(getAllVocabsTask);
+        th.setDaemon(true);
+        th.start();
     }
-    private void clearOverviewVocabs(){
+
+    private void clearOverviewVocabs() {
         Vocabularies.clear();
     }
 }
